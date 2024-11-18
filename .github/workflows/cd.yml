@@ -51,4 +51,4 @@ jobs:
 
       # Get and display service Nodes
       - name: Get Service Pods
-        run: kubectl get nodes
+        run: kubectl get pods
