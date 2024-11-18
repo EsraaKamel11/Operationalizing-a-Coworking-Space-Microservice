@@ -1,4 +1,4 @@
-cd# Workflow name for the frontend continuous deployment pipeline
+# Workflow name for the frontend continuous deployment pipeline
 name: Continuous Deployment
 
 # Triggers for the workflow
