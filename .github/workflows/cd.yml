@@ -44,8 +44,8 @@ jobs:
           kubectl apply -f db/pvc.yaml
 
       # Install PostgreSQL Helm Chart
-      - name: Install PostgreSQL Helm Chart
-        run: helm install coworking-db bitnami/postgresql --namespace default
+      #- name: Install PostgreSQL Helm Chart
+      # run: helm install coworking-db bitnami/postgresql --namespace default
 
       # Retrieve the PostgreSQL password and export it as an environment variable
       - name: Retrieve PostgreSQL Password
