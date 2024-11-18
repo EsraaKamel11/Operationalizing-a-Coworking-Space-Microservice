@@ -40,8 +40,8 @@ jobs:
       # Apply Persistent Volume and PVC configurations
       - name: Apply PVC and PV
         run: |
-          kubectl apply -f db/pv.yml
-          kubectl apply -f db/pvc.yml
+          kubectl apply -f db/pv.yaml
+          kubectl apply -f db/pvc.yaml
 
       # Install PostgreSQL Helm Chart
       - name: Install PostgreSQL Helm Chart
