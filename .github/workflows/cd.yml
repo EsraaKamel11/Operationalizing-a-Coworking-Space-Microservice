@@ -3,11 +3,9 @@ name: Continuous Deployment
 
 # Triggers for the workflow
 on:
-  # Trigger the workflow on any push to the main branch
   push:
     branches:
       - main
-  # Allow manual execution of the workflow through the GitHub Actions UI
   workflow_dispatch:
 
 # Define jobs in the workflow
@@ -25,30 +23,54 @@ jobs:
         with:
           aws-access-key-id: AKIAXYKJRKBBNMFDED5U
           aws-secret-access-key: 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
-          aws-region: us-east-2
+          aws-region: us-east-1
 
       # Update kubeconfig to authenticate to the EKS cluster
       - name: Update kubeconfig for EKS
         run: aws eks --region us-east-1 update-kubeconfig --name my-cluster
 
+      # Set up Helm and install PostgreSQL using the Bitnami Helm Chart
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+      - name: Add Bitnami Helm Repository
+        run: helm repo add bitnami https://charts.bitnami.com/bitnami
 
-      - name: Apply YAML configurations
-        run: cd db && kubectl apply -f pvc.yaml
+      - name: Install PostgreSQL Helm Chart
+        run: helm install coworking-db bitnami/postgresql --namespace default
 
-      - name: Apply YAML configurations
-        run: cd db && kubectl apply -f pv.yaml
+      # Retrieve the PostgreSQL password and export it as an environment variable
+      - name: Retrieve PostgreSQL Password
+        id: get-postgres-password
+        run: |
+          export POSTGRES_PASSWORD=$(kubectl get secret --namespace default coworking-db-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $GITHUB_ENV
 
-      - name: Check if postgresql-deployment.yaml exists
-        run: ls db
+      # Port-forward to the PostgreSQL service and apply seed files
+      - name: Apply Seed Files
+        env:
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        run: |
+          kubectl port-forward --namespace default svc/coworking-db-postgresql 5432:5432 &
+          sleep 5  # Wait for port-forward to establish
+          for file in db/*.sql; do
+            PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < $file
+          done
 
-      - name: Validate YAML Syntax
-        run: kubectl apply -f db/postgresql-deployment.yaml --dry-run=client
-        
-      # Get and display service URLs to verify deployment
+      # Apply Persistent Volume and PVC configurations
+      - name: Apply PVC and PV
+        run: |
+          kubectl apply -f db/pvc.yaml
+          kubectl apply -f db/pv.yaml
+
+      # Apply PostgreSQL deployment
+      - name: Deploy PostgreSQL
+        run: kubectl apply -f db/postgresql-deployment.yaml
+
+      # Verify that PostgreSQL is running
       - name: Get Service URLs
         run: kubectl get svc -A
 
-      # Get and display service Nodes
       - name: Get Service Pods
-        run: kubectl get pods
+        run: kubectl get pods -A
