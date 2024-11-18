@@ -27,7 +27,7 @@ jobs:
 
       # Update kubeconfig to authenticate to the EKS cluster
       - name: Update kubeconfig for EKS
-        run: aws eks --region us-east-1 update-kubeconfig --name my-cluster
+        run: aws eks --region us-east-1 update-kubeconfig --name cluster
 
       # Set up Helm and install PostgreSQL using the Bitnami Helm Chart
       - name: Install Helm
@@ -43,9 +43,14 @@ jobs:
           kubectl apply -f db/pv.yaml
           kubectl apply -f db/pvc.yaml
 
+      
+      # Deploy PostgreSQL (If you have any additional configurations)
+      - name: Deploy PostgreSQL
+        run: kubectl apply -f db/postgresql-deployment.yaml
+
       # Install PostgreSQL Helm Chart
-      #- name: Install PostgreSQL Helm Chart
-      # run: helm install coworking-db bitnami/postgresql --namespace default
+      - name: Install PostgreSQL Helm Chart
+        run: helm install coworking-db bitnami/postgresql --namespace default
 
       # Retrieve the PostgreSQL password and export it as an environment variable
       - name: Retrieve PostgreSQL Password
