@@ -39,6 +39,9 @@ jobs:
       - name: Apply YAML configurations
         run: cd db && kubectl apply -f pv.yaml
 
+      - name: Check if postgresql-deployment.yaml exists
+        run: ls db
+
       - name: Validate YAML Syntax
         run: kubectl apply -f db/postgresql-deployment.yaml --dry-run=client
         
