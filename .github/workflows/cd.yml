@@ -37,6 +37,13 @@ jobs:
       - name: Add Bitnami Helm Repository
         run: helm repo add bitnami https://charts.bitnami.com/bitnami
 
+      # Apply Persistent Volume and PVC configurations
+      - name: Apply PVC and PV
+        run: |
+          kubectl apply -f db/pv.yml
+          kubectl apply -f db/pvc.yml
+
+      # Install PostgreSQL Helm Chart
       - name: Install PostgreSQL Helm Chart
         run: helm install coworking-db bitnami/postgresql --namespace default
 
@@ -58,13 +65,7 @@ jobs:
             PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432 < $file
           done
 
-      # Apply Persistent Volume and PVC configurations
-      - name: Apply PVC and PV
-        run: |
-          kubectl apply -f db/pvc.yaml
-          kubectl apply -f db/pv.yaml
-
-      # Apply PostgreSQL deployment
+      # Deploy PostgreSQL (If you have any additional configurations)
       - name: Deploy PostgreSQL
         run: kubectl apply -f db/postgresql-deployment.yaml
 
