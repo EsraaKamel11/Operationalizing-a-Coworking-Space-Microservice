@@ -65,6 +65,10 @@ jobs:
       - name : Set up port-forwarding to `postgresql-service`
         run : kubectl port-forward svc/postgresql-service 5433:5432 &
 
+      - name : Get labels
+        run : kubectl get pods -n default --show-labels
+
+
       # Retrieve the PostgreSQL password
       - name: Retrieve PostgreSQL Password
         id: get-postgres-password
