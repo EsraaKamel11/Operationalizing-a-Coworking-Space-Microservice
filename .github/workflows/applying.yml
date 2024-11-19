@@ -65,4 +65,28 @@ jobs:
       - name : Set up port-forwarding to `postgresql-service`
         run : kubectl port-forward svc/postgresql-service 5433:5432 &
 
+      # Retrieve the PostgreSQL password
+      - name: Retrieve PostgreSQL Password
+        id: get-postgres-password
+        run: |
+          export POSTGRES_PASSWORD=$(kubectl get secret --namespace default coworking-db-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $GITHUB_ENV
+
+      # Apply Seed Files
+      - name: Apply Seed Files
+        env:
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        run: |
+          POD_NAME=$(kubectl get pods -n default -l app.kubernetes.io/name=postgresql -o jsonpath="{.items[0].metadata.name}")
+
+          # Execute seed files
+          for file in _create_tables.sql _seed_use.sql _seed_token.sql; do
+            echo "Applying $file..."
+            kubectl exec $POD_NAME -n default -- bash -c "PGPASSWORD=\"$POSTGRES_PASSWORD\" psql postgres://postgres@localhost:5432/postgres -f /db/$file"
+          done
+
+          # Verify seed data
+          kubectl exec $POD_NAME -n default -- bash -c "PGPASSWORD=\"$POSTGRES_PASSWORD\" psql postgres://postgres@localhost:5432/postgres -c 'SELECT COUNT(*) FROM your_table;'"
+
+
 
