@@ -35,7 +35,7 @@ jobs:
         run : kubectl apply -f deployment/secret.yaml
 
       - name : Deploy
-        run : kubectl apply -f coworking.yaml
+        run : kubectl apply -f deployment/coworking.yaml
 
       - name : Get svc
         run : kubectl get svc
