@@ -55,4 +55,6 @@ jobs:
 
       - name : Describe Pod
         run : kubectl describe pod postgresql-77d75d45d5-lf6tx
+      - name : Get svc
+        run : kubectl get svc
 
