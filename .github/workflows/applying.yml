@@ -1,0 +1,54 @@
+name: Applying
+
+# Triggers for the workflow
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Define jobs in the workflow
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Configure AWS credentials using GitHub Secrets for secure access
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: AKIAXYKJRKBBNMFDED5U
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+
+      # Update kubeconfig to authenticate to the EKS cluster
+      - name: Update kubeconfig for EKS
+        run: aws eks --region us-east-1 update-kubeconfig --name Cluster1
+
+      # Apply Persistent Volume and PVC configurations
+      - name: Apply PVC and PV
+        run: |
+          kubectl apply -f db/pv.yaml
+          kubectl apply -f db/pvc.yaml
+ 
+      # Deploy PostgreSQL (If you have any additional configurations)
+      - name: Deploy PostgreSQL
+        run: kubectl apply -f db/postgresql-deployment.yaml
+
+      - name : Get PV
+        run: kubectl get pv
+
+      - name : Get PVC
+        run : kubectl get pvc
+
+      - name : Get Deployments
+        run : kubectl get deployments
+
+      - name : Get Pods
+        run : kubectl get pods
+
+      - name : Describe the deployment
+        run : kubectl describe deployment postgresql
