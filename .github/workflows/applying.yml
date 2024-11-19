@@ -61,4 +61,8 @@ jobs:
         
       - name : Get svc
         run : kubectl get svc
+        
+      - name : Set up port-forwarding to `postgresql-service`
+        run : kubectl port-forward svc/postgresql-service 5433:5432 &
+
 
