@@ -1,0 +1,41 @@
+name: Applying2
+
+# Triggers for the workflow
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Define jobs in the workflow
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Configure AWS credentials using GitHub Secrets for secure access
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: AKIAXYKJRKBBNMFDED5U
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+
+      # Update kubeconfig to authenticate to the EKS cluster
+      - name: Update kubeconfig for EKS
+        run: aws eks --region us-east-1 update-kubeconfig --name Cluster1
+
+      - name : Applying Configmap
+        run : kubectl apply -f configmap.yaml
+        
+      - name : Apply The Secret
+        run : kubectl apply -f secret.yaml
+
+      - name : Deploy
+        run : kubectl apply -f deployment.yaml
+
+      - name : Get svc
+        run : kubectl get svc
