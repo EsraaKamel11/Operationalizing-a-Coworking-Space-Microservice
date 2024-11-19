@@ -1,4 +1,4 @@
-name: Applying2
+yname: Applying2
 
 # Triggers for the workflow
 on:
@@ -29,13 +29,13 @@ jobs:
         run: aws eks --region us-east-1 update-kubeconfig --name Cluster1
 
       - name : Applying Configmap
-        run : kubectl apply -f configmap.yaml
+        run : kubectl apply -f deployment/configmap.yaml
         
       - name : Apply The Secret
-        run : kubectl apply -f secret.yaml
+        run : kubectl apply -f deployment/secret.yaml
 
       - name : Deploy
-        run : kubectl apply -f deployment.yaml
+        run : kubectl apply -f coworking.yaml
 
       - name : Get svc
         run : kubectl get svc
