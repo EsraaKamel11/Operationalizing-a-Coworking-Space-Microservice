@@ -82,3 +82,17 @@ jobs:
           PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/1_create_tables.sql
           PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/2_seed_users.sql
           PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/3_seed_tokens.sql
+
+      # Query PostgreSQL Tables
+      - name: Query PostgreSQL Tables
+        env:
+          DB_PASSWORD: ${{ env.DB_PASSWORD }}
+        run: |
+          POD_NAME=$(kubectl get pods -n default -l app=postgresql -o jsonpath="{.items[0].metadata.name}")
+    
+          # Query to list tables
+          kubectl exec $POD_NAME -n default -- bash -c "PGPASSWORD=\"$DB_PASSWORD\" psql -U myuser -d mydatabase -c '\dt'"
+
+          # Query to fetch rows from a specific table
+          kubectl exec $POD_NAME -n default -- bash -c "PGPASSWORD=\"$DB_PASSWORD\" psql -U myuser -d mydatabase -c 'SELECT * FROM tokens LIMIT 10;'"
+
