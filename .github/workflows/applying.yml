@@ -31,15 +31,15 @@ jobs:
       # Apply Persistent Volume and PVC configurations
       - name: Apply PVC and PV
         run: |
-          kubectl apply -f db/pv.yaml
-          kubectl apply -f db/pvc.yaml
+          kubectl apply -f analytics/db/pv.yaml
+          kubectl apply -f analytics/db/pvc.yaml
  
       # Deploy PostgreSQL (If you have any additional configurations)
       - name: Deploy PostgreSQL
-        run: kubectl apply -f db/postgresql-deployment.yaml
+        run: kubectl apply -f analytics/db/postgresql-deployment.yaml
         
       - name: Explose PostgreSQL deployment
-        run : kubectl apply -f db/postgresql-service.yaml
+        run : kubectl apply -f analytics/db/postgresql-service.yaml
 
       - name : Get PV
         run: kubectl get pv
@@ -79,9 +79,9 @@ jobs:
         env:
           DB_PASSWORD: ${{ env.DB_PASSWORD }}
         run: |
-          PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/1_create_tables.sql
-          PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/2_seed_users.sql
-          PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < db/3_seed_tokens.sql
+          PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < analytics/db/1_create_tables.sql
+          PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < analytics/db/2_seed_users.sql
+          PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < analytics/db/3_seed_tokens.sql
 
       # Query PostgreSQL Tables
       - name: Query PostgreSQL Tables
