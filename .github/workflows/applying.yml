@@ -37,6 +37,9 @@ jobs:
       # Deploy PostgreSQL (If you have any additional configurations)
       - name: Deploy PostgreSQL
         run: kubectl apply -f db/postgresql-deployment.yaml
+        
+      - name: Explose PostgreSQL deployment
+        run : kubectl apply -f db/postgresql-service.yaml
 
       - name : Get PV
         run: kubectl get pv
@@ -55,6 +58,7 @@ jobs:
 
       - name : Describe Pod
         run : kubectl describe pod postgresql-77d75d45d5-lf6tx
+        
       - name : Get svc
         run : kubectl get svc
 
