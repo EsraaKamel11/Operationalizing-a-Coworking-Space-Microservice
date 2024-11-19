@@ -52,3 +52,7 @@ jobs:
 
       - name : Describe the deployment
         run : kubectl describe deployment postgresql
+
+      - name : Describe Pod
+        run : kubectl describe pod postgresql-77d75d45d5-lf6tx
+
