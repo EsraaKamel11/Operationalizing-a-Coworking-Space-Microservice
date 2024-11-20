@@ -39,6 +39,15 @@ jobs:
 
       - name : Get svc
         run : kubectl get svc
+
+      - name : Describe Deployment
+        run : kubectl describe deployment coworking
+
+      - name : Get Pods
+        run : kubectl get pods
+
+      - name : Describe  postgresql-service
+        run : kubectl describe svc postgresql-service
         
       - name : Attach IAM policy
         run : aws iam attach-role-policy --role-name eksctl-Cluster1-nodegroup-my-nodes-NodeInstanceRole-sVi5Bq1fp73T --policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
