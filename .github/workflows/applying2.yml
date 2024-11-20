@@ -39,3 +39,9 @@ jobs:
 
       - name : Get svc
         run : kubectl get svc
+        
+      - name : Attach IAM policy
+        run : aws iam attach-role-policy --role-name eksctl-Cluster1-nodegroup-my-nodes-NodeInstanceRole-sVi5Bq1fp73T --policy-arn arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+
+      - name : Create adon
+        run : aws eks create-addon --addon-name amazon-cloudwatch-observability --cluster-name Cluster1
