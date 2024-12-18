@@ -125,4 +125,55 @@ aws sts get-caller-identity
    curl http://127.0.0.1:5153/api/reports/daily_usage
    curl http://127.0.0.1:5153/api/reports/user_visits
    ```
+---
+
+## Containerization & CI/CD
+
+### Building & Testing the Docker Image
+
+1. **Write the Dockerfile** inside `analytics/`:
+
+   - Use a lightweight Python base image (e.g., `python:3.9-slim`).
+   - Install dependencies via `pip install -r requirements.txt`.
+   - Set `ENTRYPOINT` and `CMD` as needed.
+
+2. **Build the Image:**
+
+   ```bash
+   docker build -t coworking-analytics:local .
+   ```
+
+3. **Test the Image:**
+
+   ```bash
+   docker run --network="host" coworking-analytics:local
+   curl http://127.0.0.1:5153/api/reports/daily_usage
+   ```
+
+   Ensure the local application is not running simultaneously on port `5153`.
+
+---
+
+### Continuous Integration with AWS CodeBuild
+
+1. **Create an ECR Repository:**
+
+   In the AWS Console, create an ECR repo named `coworking-analytics`.
+
+2. **Set Up CodeBuild:**
+
+   - Connect CodeBuild to your GitHub repository.
+   - Provide IAM roles that allow `docker push` to ECR.
+
+3. **Create `buildspec.yaml` with Steps to:**
+
+   - Login to ECR using `aws ecr get-login-password`.
+   - Build Docker image.
+   - Tag image with `$CODEBUILD_BUILD_NUMBER`.
+   - Push image to ECR.
+
+4. **Trigger a Build:**
+
+   Manually start a build in CodeBuild and verify the new image is in ECR.
+
 
