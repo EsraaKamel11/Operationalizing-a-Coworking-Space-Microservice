@@ -76,3 +76,53 @@ aws sts get-caller-identity
 
    PostgreSQL is now accessible at `127.0.0.1:5433`.
 
+---
+
+## Seeding the Database
+
+1. **Install `psql`:**
+
+   ```bash
+   apt update && apt install -y postgresql postgresql-contrib
+   ```
+
+2. **Seed the Database:**
+
+   ```bash
+   export DB_PASSWORD=mypassword
+   PGPASSWORD="$DB_PASSWORD" psql --host 127.0.0.1 -U myuser -d mydatabase -p 5433 < seed_file.sql
+   ```
+
+   Repeat for all seed files as necessary. Verify tables and data using `\l` and `\dt` from within `psql`.
+
+---
+
+## Running the Analytics Application Locally
+
+1. **Install Dependencies:**
+
+   ```bash
+   apt update && apt install -y build-essential libpq-dev
+   pip install --upgrade pip setuptools wheel
+   pip install -r analytics/requirements.txt
+   ```
+
+2. **Set Environment Variables & Run:**
+
+   ```bash
+   export DB_USERNAME=myuser
+   export DB_PASSWORD=mypassword
+   export DB_HOST=127.0.0.1
+   export DB_PORT=5433
+   export DB_NAME=mydatabase
+
+   python analytics/app.py
+   ```
+
+3. **Test Endpoints:**
+
+   ```bash
+   curl http://127.0.0.1:5153/api/reports/daily_usage
+   curl http://127.0.0.1:5153/api/reports/user_visits
+   ```
+
