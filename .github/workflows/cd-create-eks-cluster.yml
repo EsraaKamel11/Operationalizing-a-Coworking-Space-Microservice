@@ -1,0 +1,38 @@
+name: Create EKS Cluster
+on: [workflow_dispatch]
+
+jobs:
+  create-cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: AKIA44Y6CHB342IQVBHP
+          aws-secret-access-key: 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
+          aws-region: us-east-2
+
+      - name: Install eksctl
+        run: |
+          curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" \
+          | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
+
+      - name: Create EKS Cluster
+        run: eksctl create cluster \
+          --name cluster \
+          --region us-east-2 \
+          --nodegroup-name my-nodes \
+          --node-type t3.small \
+          --nodes 1 \
+          --nodes-min 1 \
+          --nodes-max 2
+
+      - name: Update Kubeconfig
+        run: aws eks --region us-east-2 update-kubeconfig --name mcluster
+
+      - name: Verify Current Context
+        run: kubectl config current-context
