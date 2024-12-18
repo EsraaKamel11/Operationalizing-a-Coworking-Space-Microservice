@@ -1,3 +1,62 @@
+# Coworking Space Service – Analytics API
+
+The Coworking Space Service is a microservices-based platform designed to manage coworking spaces, track user activities, and provide actionable business insights. This repository focuses on the Analytics API, which provides data analysis endpoints for business analysts. By integrating with a PostgreSQL database and leveraging Kubernetes (via Amazon EKS) for container orchestration, this API offers scalable, reliable analytics capabilities.
+
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Key Features](#key-features)
+3. [Architecture](#architecture)
+4. [Prerequisites](#prerequisites)
+5. [Local Development and Testing](#local-development-and-testing)
+   - [AWS Configuration](#aws-configuration)
+   - [Kubernetes Cluster Setup](#kubernetes-cluster-setup)
+   - [PostgreSQL Setup in Kubernetes](#postgresql-setup-in-kubernetes)
+   - [Seeding the Database](#seeding-the-database)
+   - [Running the Analytics Application Locally](#running-the-analytics-application-locally)
+6. [Containerization & CI/CD](#containerization--cicd)
+   - [Building & Testing the Docker Image](#building--testing-the-docker-image)
+   - [Continuous Integration with AWS CodeBuild](#continuous-integration-with-aws-codebuild)
+7. [Deployment to EKS](#deployment-to-eks)
+   - [ConfigMaps & Secrets](#configmaps--secrets)
+   - [Deployment Manifests](#deployment-manifests)
+   - [Service & Load Balancing](#service--load-balancing)
+   - [Verification & Testing in Production](#verification--testing-in-production)
+8. [Maintenance & Cleanup](#maintenance--cleanup)
+9. [Troubleshooting](#troubleshooting)
+10. [References & Further Reading](#references--further-reading)
+11. [License](#license)
+
+## Project Overview
+
+The Coworking Space Service enables flexible, on-demand usage of office spaces. By capturing real-time data on user check-ins, tokens requested, and visitor patterns, it empowers business analysts to make data-driven decisions.
+
+This repository:
+
+- Focuses on the Analytics API that queries user activity data from a PostgreSQL database.
+- Provides daily usage, user visit reports, and other analytics endpoints.
+- Demonstrates best practices in DevOps, microservices deployment, and CI/CD.
+
+## Key Features
+
+- **Microservice Architecture**: The analytics functionality is isolated and deployable as a standalone service.
+- **Kubernetes & EKS**: Scalable deployment, rolling updates, and self-healing capabilities.
+- **PostgreSQL Integration**: A persistent backend store for analytical data.
+- **CI/CD Pipeline**: Automated build, test, and deployment using CodeBuild and ECR.
+- **Configurable via ConfigMaps & Secrets**: Clear separation of sensitive and non-sensitive configuration.
+
+## Prerequisites
+
+- **AWS CLI**: Configure with credentials and correct IAM permissions (able to create EKS clusters, push to ECR, etc.).
+- **kubectl & eksctl**: For Kubernetes cluster management and EKS provisioning.
+- **Docker**: To build and test container images locally.
+- **psql (PostgreSQL Client)**: For verifying database connectivity.
+- **Python 3 & pip**: Required if you want to run and test the Analytics application locally before containerizing.
+- **git**: For version control and integration with CodeBuild via GitHub.
+- **IAM Permissions**: Ensure you have the necessary AWS IAM policies to manage EKS, ECR, and CodeBuild.
+
+---
+
 # Local Development and Testing
 
 ## AWS Configuration
