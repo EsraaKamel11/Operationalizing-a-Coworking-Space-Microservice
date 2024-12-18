@@ -24,7 +24,14 @@ aws sts get-caller-identity
 2. **Create an EKS Cluster:**
 
    ```bash
-   eksctl create cluster --name my-cluster --region us-east-1 --nodegroup-name my-nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 2
+   eksctl create cluster \
+     --name my-cluster \
+     --region us-east-1 \
+     --nodegroup-name my-nodes \
+     --node-type t3.small \
+     --nodes 1 \
+     --nodes-min 1 \
+     --nodes-max 2
    ```
 
 3. **Update kubeconfig:**
@@ -38,6 +45,7 @@ aws sts get-caller-identity
    ```bash
    kubectl config current-context
    ```
+
 ---
 
 ## PostgreSQL Setup in Kubernetes
@@ -125,6 +133,7 @@ aws sts get-caller-identity
    curl http://127.0.0.1:5153/api/reports/daily_usage
    curl http://127.0.0.1:5153/api/reports/user_visits
    ```
+
 ---
 
 ## Containerization & CI/CD
@@ -176,4 +185,135 @@ aws sts get-caller-identity
 
    Manually start a build in CodeBuild and verify the new image is in ECR.
 
+---
 
+## Deployment to EKS
+
+### ConfigMaps & Secrets
+
+1. **ConfigMap:** Store non-sensitive config (DB_HOST, DB_USERNAME, DB_PORT, DB_NAME):
+
+   ```bash
+   kubectl create configmap coworking-config \
+     --from-literal=DB_HOST=postgresql-service \
+     --from-literal=DB_USERNAME=myuser \
+     --from-literal=DB_NAME=mydatabase \
+     --from-literal=DB_PORT=5432
+   ```
+
+2. **Secret:** Store sensitive data (DB_PASSWORD):
+
+   ```bash
+   kubectl create secret generic coworking-secret \
+     --from-literal=DB_PASSWORD=mypassword
+   ```
+
+### Deployment Manifests
+
+Use a Deployment manifest referencing the ECR image built by CodeBuild:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: coworking
+spec:
+  type: LoadBalancer
+  selector:
+    service: coworking
+  ports:
+    - name: "5153"
+      protocol: TCP
+      port: 5153
+      targetPort: 5153
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coworking
+  labels:
+    name: coworking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: coworking
+  template:
+    metadata:
+      labels:
+        service: coworking
+    spec:
+      containers:
+      - name: coworking
+        image: <YOUR_ECR_URI_HERE>
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5153
+        livenessProbe:
+          httpGet:
+            path: /health_check
+            port: 5153
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+        readinessProbe:
+          httpGet:
+            path: /readiness_check
+            port: 5153
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        envFrom:
+        - configMapRef:
+            name: coworking-config
+        env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: coworking-secret
+              key: DB_PASSWORD
+      restartPolicy: Always
+```
+
+Apply the manifest:
+
+```bash
+kubectl apply -f deployment.yaml
+```
+
+### Service & Load Balancing
+
+The LoadBalancer-type Service will provide an external IP. Retrieve it with:
+
+```bash
+kubectl get svc
+```
+
+### Verification & Testing in Production
+
+Once you have the External IP, test the endpoints:
+
+```bash
+curl http://<EXTERNAL-IP>:5153/api/reports/daily_usage
+curl http://<EXTERNAL-IP>:5153/api/reports/user_visits
+```
+
+Verify data correctness and API responsiveness.
+
+---
+
+## Maintenance & Cleanup
+
+1. **Deleting the EKS Cluster:**
+
+   ```bash
+   eksctl delete cluster --name my-cluster --region us-east-1
+   ```
+
+2. **Stopping Port-Forwarding:**
+
+   ```bash
+   ps aux | grep 'kubectl port-forward' | grep -v grep | awk '{print $2}' | xargs -r kill
+   ```
+
+3. **Removing AWS Resources:**
+
+   Delete ECR repositories, CodeBuild projects, ConfigMaps, Secrets, and other infrastructure when no longer needed.
