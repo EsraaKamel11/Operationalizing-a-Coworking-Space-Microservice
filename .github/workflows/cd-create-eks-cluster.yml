@@ -22,10 +22,10 @@ jobs:
           sudo mv /tmp/eksctl /usr/local/bin
 
       - name: Create EKS Cluster
-        run: eksctl create cluster --name cluster --region us-west-1 --nodegroup-name my-nodes --node-type t2.medium --nodes 1 --nodes-min 1 --nodes-max 2
+        run: eksctl create cluster --name my-cluster --nodes=2 --version=1.30 --instance-types=t2.medium --region=us-west-1
 
       - name: Update Kubeconfig
-        run: aws eks --region us-west-1 update-kubeconfig --name mcluster
+        run: aws eks --region us-west-1 update-kubeconfig --name my-cluster
 
       - name: Verify Current Context
         run: kubectl config current-context
