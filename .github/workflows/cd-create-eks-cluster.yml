@@ -13,7 +13,7 @@ jobs:
         with:
           aws-access-key-id: AKIA44Y6CHB342IQVBHP
           aws-secret-access-key: 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
-          aws-region: us-east-2
+          aws-region: us-west-1
 
       - name: Install eksctl
         run: |
@@ -22,10 +22,10 @@ jobs:
           sudo mv /tmp/eksctl /usr/local/bin
 
       - name: Create EKS Cluster
-        run: eksctl create cluster --name cluster --region us-east-2 --nodegroup-name my-nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 2
+        run: eksctl create cluster --name cluster --region us-west-1 --nodegroup-name my-nodes --node-type t2.medium --nodes 1 --nodes-min 1 --nodes-max 2
 
       - name: Update Kubeconfig
-        run: aws eks --region us-east-2 update-kubeconfig --name mcluster
+        run: aws eks --region us-west-1 update-kubeconfig --name mcluster
 
       - name: Verify Current Context
         run: kubectl config current-context
