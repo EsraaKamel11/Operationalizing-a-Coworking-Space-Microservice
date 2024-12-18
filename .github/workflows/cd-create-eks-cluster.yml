@@ -22,14 +22,7 @@ jobs:
           sudo mv /tmp/eksctl /usr/local/bin
 
       - name: Create EKS Cluster
-        run: eksctl create cluster \
-          --name cluster \
-          --region us-east-2 \
-          --nodegroup-name my-nodes \
-          --node-type t3.small \
-          --nodes 1 \
-          --nodes-min 1 \
-          --nodes-max 2
+        run: eksctl create cluster --name cluster --region us-east-2 --nodegroup-name my-nodes --node-type t3.small --nodes 1 --nodes-min 1 --nodes-max 2
 
       - name: Update Kubeconfig
         run: aws eks --region us-east-2 update-kubeconfig --name mcluster
